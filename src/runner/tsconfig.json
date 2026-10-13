@@ -1,0 +1,16 @@
+{
+  // The runner's job and messages, checked without the DOM's types: they run on a server.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "WebWorker"],
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "inlineSources": false,
+    "types": ["vite/client"]
+  },
+  "include": [".", "../protocol.ts", "../hosting.ts", "../hosting", "../env.d.ts"]
+}

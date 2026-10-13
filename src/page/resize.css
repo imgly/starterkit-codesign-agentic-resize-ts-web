@@ -1,0 +1,349 @@
+@import '../../shared/src/styles/base.css';
+
+/* Agentic Resize: the designs demo's tokens and controls, a form panel and a results panel. */
+
+.small {
+  font-size: 12px;
+}
+
+.resize {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 440px minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.setup,
+.results {
+  overflow-y: auto;
+  padding-bottom: var(--space-4);
+}
+
+.setup > :not(.panel-head),
+.results > :not(.panel-head) {
+  margin-left: var(--space-4);
+  margin-right: var(--space-4);
+}
+
+.setup > section + section {
+  margin-top: var(--space-6);
+}
+
+.setup .label {
+  margin-bottom: var(--space-2);
+}
+
+.setup p {
+  margin: var(--space-2) 0 0;
+}
+
+.custom input,
+.model select {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.model {
+  display: grid;
+  gap: 2px;
+  margin-top: var(--space-6);
+}
+
+/* The design to resize: its render on the stage, then CE.SDK's templates and an upload. */
+
+.source {
+  margin: 0;
+}
+
+.source .stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  padding: var(--space-3);
+  background: var(--stage);
+  border-radius: var(--radius-l);
+}
+
+.source .stage img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 2px;
+  box-shadow:
+    0 0 0 1px var(--border),
+    var(--shadow-card);
+}
+
+.source figcaption {
+  margin-top: var(--space-2);
+}
+
+.samples {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.samples .sample {
+  flex: none;
+  height: 48px;
+  max-width: 132px;
+  padding: 0 10px 0 4px;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.samples .sample img {
+  height: 38px;
+  width: 38px;
+  object-fit: cover;
+  border-radius: var(--radius-s);
+}
+
+.samples .sample span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.samples .sample:not(:has(img)) {
+  padding-left: 10px;
+}
+
+.samples .sample[aria-pressed='true'] {
+  border-color: var(--accent);
+}
+
+.samples .upload {
+  flex: none;
+  height: 48px;
+}
+
+/* CE.SDK's presets as tiles, grouped by platform; a picked tile carries the accent border. */
+
+.pick .group + .group {
+  margin-top: var(--space-3);
+}
+
+.pick h4 {
+  margin: 0 0 6px;
+  font: 500 12px/16px var(--font);
+  color: var(--text-2);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.tile {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 2px;
+  height: auto;
+  padding: 6px 8px 8px;
+  white-space: normal;
+  text-align: center;
+}
+
+.tile[aria-pressed='true'] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.tile:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tile .shape {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+}
+
+.tile .shape img {
+  width: 100%;
+  height: 100%;
+}
+
+.tile .shape .box {
+  max-width: 40px;
+  max-height: 40px;
+  width: 40px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
+.tile .name {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font: 500 11px/14px var(--font);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tile .size {
+  font: 400 11px/14px var(--font);
+  color: var(--text-3);
+}
+
+.custom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-3);
+}
+
+.custom input {
+  width: 84px;
+}
+
+.go {
+  position: sticky;
+  bottom: calc(-1 * var(--space-4));
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding: var(--space-3) 0 var(--space-4);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.result {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.result .thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+}
+
+.result .thumb img {
+  width: auto;
+  height: auto;
+  min-height: 0;
+}
+
+.result .meta .off {
+  color: var(--danger);
+}
+
+.result .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.result .actions .small {
+  white-space: nowrap;
+}
+
+/* The shared `.card button` reset is for cards that are buttons; this one holds one, styled as Download is. */
+.result .actions .edit {
+  width: auto;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  font: 500 14px/20px var(--font);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.result .actions .edit:hover {
+  background: var(--surface-hover);
+}
+
+.result .actions .edit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.result .download,
+.result .png {
+  text-decoration: none;
+  height: 28px;
+}
+
+.result .error {
+  margin: var(--space-2) 0 0;
+  color: var(--danger);
+  font-size: 12px;
+}
+
+.result .notes {
+  margin: var(--space-2) 0 0;
+}
+
+.result .notes.clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+
+.result .notes.clamped.cut {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.5em), transparent);
+}
+
+/* The shared `.card button` reset is for cards that are buttons; this one reads as a link. */
+.result .more {
+  display: inline-block;
+  width: auto;
+  padding: 0;
+  border-radius: 2px;
+  box-shadow: none;
+  margin-top: var(--space-1);
+  font: 500 12px/16px var(--font);
+  color: var(--accent);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.result .more[hidden] {
+  display: none;
+}
+
+.result .more:hover {
+  text-decoration: underline;
+}
+
+.result .more:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.results .empty {
+  margin-top: 0;
+}

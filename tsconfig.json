@@ -1,0 +1,17 @@
+{
+  // The page, the runner server, the tests and the Vite configs. `src/runner/` is also checked on its own, without the DOM.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "inlineSources": false,
+    "types": ["node", "vite/client"]
+  },
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["**/*.worker.ts"]
+}

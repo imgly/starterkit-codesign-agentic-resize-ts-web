@@ -1,0 +1,17 @@
+{
+  // What runs without the DOM: the agent loop, the token client and the hostings' code, under WebWorker types.
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "WebWorker"],
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "inlineSources": false,
+    "types": ["vite/client"]
+  },
+  "include": ["src/runner", "hosting/cloud/*.ts", "src/protocol.ts", "src/config.ts", "src/licence.ts", "src/env.d.ts"],
+  "exclude": ["hosting/browser/vite.ts"]
+}

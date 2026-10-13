@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agentic Resize</title>
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="./src/page/resize.css" />
+  </head>
+  <body class="resize-page">
+    <header class="top">
+      <span class="wordmark">Agentic Resize</span>
+      <span class="spacer"></span>
+      <span class="mode muted" id="mode" hidden></span>
+    </header>
+    <p class="notice" id="notice" hidden></p>
+
+    <main class="resize" id="app" hidden>
+      <form class="panel setup" id="form">
+        <div class="panel-head"><h2>Resize a design</h2></div>
+        <section>
+          <h3 class="label">Design</h3>
+          <figure class="source" id="source" data-state="loading">
+            <div class="stage" id="source-stage">
+              <span class="spinner" aria-hidden="true"></span>
+            </div>
+            <figcaption class="muted small" id="source-caption">
+              Coffee ad, 4:5
+            </figcaption>
+          </figure>
+          <div class="samples" id="samples">
+            <label class="button upload">
+              Upload…
+              <input
+                type="file"
+                id="file"
+                class="visually-hidden"
+                accept=".imgly,.png,.jpg,.jpeg,.webp"
+              />
+            </label>
+          </div>
+        </section>
+        <section>
+          <h3 class="label">Target canvases</h3>
+          <div class="pick" id="presets">
+            <p class="muted small">Loading CE.SDK's presets…</p>
+          </div>
+          <div class="custom">
+            <input
+              type="number"
+              id="custom-w"
+              min="1"
+              max="8000"
+              value="1200"
+              aria-label="Custom width in pixels"
+            />
+            <span class="muted">×</span>
+            <input
+              type="number"
+              id="custom-h"
+              min="1"
+              max="8000"
+              value="900"
+              aria-label="Custom height in pixels"
+            />
+            <span class="muted small">px</span>
+            <button type="button" id="custom-add">Add custom size</button>
+          </div>
+        </section>
+        <label class="model">
+          <span class="muted small">Model</span>
+          <select id="model"></select>
+        </label>
+        <div class="go">
+          <button id="go" type="submit" class="primary">Resize</button>
+          <span class="muted small" id="estimate"></span>
+        </div>
+      </form>
+
+      <section class="panel results" aria-labelledby="results-title">
+        <div class="panel-head">
+          <h2 id="results-title">Results</h2>
+          <span class="muted small" id="status" role="status"></span>
+        </div>
+        <ul class="grid" id="out"></ul>
+        <p class="empty empty-state muted" id="empty">
+          Each canvas appears here as it is made, with its download.
+        </p>
+      </section>
+    </main>
+    <p class="desktop-only">This demo runs on a desktop browser.</p>
+    <script type="module" src="./src/page/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+/* The editor modal: CE.SDK's editor over the whole viewport less a margin, and a line over it while there is something to say. */
+
+.editor-modal {
+  width: calc(100vw - 32px);
+  height: calc(100vh - 32px);
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  color: #1a1a1a;
+  font:
+    14px/1.4 Inter,
+    system-ui,
+    sans-serif;
+}
+.editor-modal[open] {
+  display: flex;
+  position: fixed;
+}
+.editor-modal::backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
+.editor-modal .em-canvas {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.editor-modal .em-bar {
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 32px);
+  padding: 8px 8px 8px 16px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.08),
+    0 8px 24px rgb(0 0 0 / 0.16);
+  z-index: 1;
+}
+.editor-modal .em-bar[hidden] {
+  display: none;
+}
+.editor-modal[data-state='loading'] .em-bar {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.editor-modal[data-state='failed'] .em-status,
+.editor-modal[data-state='conflict'] .em-status {
+  color: #b42318;
+}
+.editor-modal .em-choices {
+  display: flex;
+  gap: 8px;
+}
+.editor-modal .em-choices:empty {
+  display: none;
+}
+.editor-modal button {
+  font: inherit;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #d0d0d0;
+  background: #fff;
+  cursor: pointer;
+}
+.editor-modal button.primary {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #fff;
+}

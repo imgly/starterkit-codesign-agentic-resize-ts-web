@@ -1,0 +1,64 @@
+# Agentic Resize's cloud hosting on your machine: IMG.LY's published executor image, three times, behind one nginx, and
+# the runner. IMG.LY does not host this for you. From the demo's folder, with the variables of .env.template here in
+# the demo's .env:
+#   pnpm run build:runner
+#   docker compose -f src/hosting/cloud/compose.yaml --env-file .env --profile runner up -d
+# Without `--profile runner`, start the runner on this machine instead: pnpm exec vite-node src/hosting/cloud/runner/serve.ts
+
+x-executor:
+  &executor # IMG.LY's published image, the same version as this demo's @imgly/codesign-sdk.
+  image: ${EXECUTOR_IMAGE:-imgly/codesign-executor:1.83.0}
+  # One conversation per executor: it exits about 3½ min after that conversation's last call and comes back empty.
+  # The binding and /tmp are in memory, so the restarted container is a clean one that no conversation holds.
+  restart: always
+  read_only: true
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=512m
+    # The image's user (1000) writes the conversation binding here.
+    - /var/lib/codesign-executor:uid=1000,gid=1000,mode=0700
+  cap_drop: [ALL]
+  security_opt: ['no-new-privileges:true']
+  pids_limit: 256
+  mem_limit: 2g
+  cpus: 1
+  environment:
+    # Your CoDesign licence key: every export of these executors is charged to it.
+    IMGLY_CESDK_LICENSE: ${IMGLY_CESDK_LICENSE:?set IMGLY_CESDK_LICENSE in .env}
+    EXECUTOR_TOKEN: ${EXECUTOR_TOKEN:?set EXECUTOR_TOKEN in .env}
+
+services:
+  # A resize run is one conversation, and each preview of a source another.
+  executor-1: *executor
+  executor-2: *executor
+  executor-3: *executor
+
+  # The runner reaches the executors here, with their token added on the way in; no page reaches them.
+  nginx:
+    image: nginx:1.27-alpine
+    environment:
+      CLOUD_PORT: ${CLOUD_PORT:-8791}
+      EXECUTOR_TOKEN: ${EXECUTOR_TOKEN:?set EXECUTOR_TOKEN in .env}
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+    ports: ['127.0.0.1:${CLOUD_PORT:-8791}:${CLOUD_PORT:-8791}']
+
+  # The runner: the demo's job and its server (src/hosting/cloud/runner/), bundled by `pnpm run build:runner`.
+  # Your own server, holding the platform's gateway key; the page reaches it with your sign-in's token (TOKEN_ISSUERS).
+  runner:
+    profiles: [runner]
+    image: node:22-alpine
+    working_dir: /app
+    command: [node, serve.mjs]
+    read_only: true
+    volumes: ['../../../dist/runner:/app:ro']
+    environment:
+      RUNNER_HOST: 0.0.0.0
+      RUNNER_PORT: 8793
+      EXECUTOR_URLS: http://nginx:${CLOUD_PORT:-8791}/executor-1,http://nginx:${CLOUD_PORT:-8791}/executor-2,http://nginx:${CLOUD_PORT:-8791}/executor-3
+      IMGLY_GATEWAY_API_KEY: ${IMGLY_GATEWAY_API_KEY:-}
+      TOKEN_ISSUERS: ${TOKEN_ISSUERS:-}
+      JWKS_URL: ${JWKS_URL:-}
+      TOKEN_AUDIENCE: ${TOKEN_AUDIENCE:-}
+      TOKEN_HEADER: ${TOKEN_HEADER:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+    ports: ['127.0.0.1:8793:8793']

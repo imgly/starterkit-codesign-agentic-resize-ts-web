@@ -1,0 +1,32 @@
+{
+  "name": "@imgly/demo-agentic-resize",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A CoDesign SDK starter kit: a design agent re-composes one design into new canvas sizes, with the agent loop on your server and the design engine in IMG.LY's executor image.",
+  "scripts": {
+    "dev": "vite",
+    "build:site": "vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p src/runner",
+    "build:runner": "vite build --config src/hosting/cloud/runner/vite.config.ts"
+  },
+  "dependencies": {
+    "@cesdk/cesdk-js": "1.83.0",
+    "@cesdk/engine": "1.83.0",
+    "@earendil-works/pi-agent-core": "^0.87.1",
+    "@earendil-works/pi-ai": "^0.87.1",
+    "@imgly/codesign-sdk": "1.83.0",
+    "jose": "6.2.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "5.9.3",
+    "vite": "^5.4.11",
+    "vite-node": "3.2.4"
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "engines": {
+    "node": ">=22"
+  }
+}
