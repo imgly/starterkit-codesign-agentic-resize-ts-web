@@ -37,8 +37,8 @@ those tools (`src/hosting/cloud/runner/`, a Node server).
 - Node.js 22 or newer, Docker with Compose, and a desktop browser (the page is
   tested in desktop Chrome).
 - A **CE.SDK license key** for the editor in the page, the kind a CE.SDK web
-  editor uses. A 30-day trial key works for local development
-  ([CE.SDK licensing](https://img.ly/docs/cesdk/js/licensing-8aa063/#trial-license-key)).
+  editor uses. A 30-day trial key works for local development:
+  sign up in the [IMG.LY dashboard](https://img.ly/dashboard), which shows it.
   It goes in `VITE_CESDK_LICENSE`.
 - A **CoDesign license key**, which pays for model calls and exports.
   [Contact sales](https://img.ly/forms/contact-sales/) to get a CoDesign license key. It goes in `.env`
