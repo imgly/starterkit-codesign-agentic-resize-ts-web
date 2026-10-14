@@ -1,12 +1,15 @@
 # Agentic Resize's cloud hosting on your machine: IMG.LY's published executor image, three times, behind one nginx, and
-# the runner. IMG.LY does not host this for you. From the demo's folder, with the variables of .env.template here in
-# the demo's .env:
+# the runner. IMG.LY does not host this for you. From the starter kit's folder, with the variables of .env.template here in
+# the starter kit's .env:
 #   pnpm run build:runner
 #   docker compose -f src/hosting/cloud/compose.yaml --env-file .env --profile runner up -d
 # Without `--profile runner`, start the runner on this machine instead: pnpm exec vite-node src/hosting/cloud/runner/serve.ts
 
+# The project's own name, so its containers never collide with another kit's on the same machine.
+name: codesign-resize
+
 x-executor:
-  &executor # IMG.LY's published image, the same version as this demo's @imgly/codesign-sdk.
+  &executor # IMG.LY's published image, the same version as this starter kit's @imgly/codesign-sdk.
   image: ${EXECUTOR_IMAGE:-imgly/codesign-executor:1.83.0}
   # One conversation per executor: it exits about 3½ min after that conversation's last call and comes back empty.
   # The binding and /tmp are in memory, so the restarted container is a clean one that no conversation holds.
@@ -42,7 +45,7 @@ services:
       - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
     ports: ['127.0.0.1:${CLOUD_PORT:-8791}:${CLOUD_PORT:-8791}']
 
-  # The runner: the demo's job and its server (src/hosting/cloud/runner/), bundled by `pnpm run build:runner`.
+  # The runner: the starter kit's job and its server (src/hosting/cloud/runner/), bundled by `pnpm run build:runner`.
   # Your own server, holding the platform's gateway key; the page reaches it with your sign-in's token (TOKEN_ISSUERS).
   runner:
     profiles: [runner]

@@ -77,7 +77,20 @@ export function resultsView(
     const img = el('img');
     img.alt = `${card.format.label}, resized`;
     img.src = src;
-    card.thumb.replaceChildren(img);
+    card.thumb.querySelector('img')?.remove();
+    card.thumb.prepend(img);
+  };
+  // Over the card from its job's start until it lands, preview renders included.
+  const busy = (card: Card, on: boolean) => {
+    card.el.setAttribute('aria-busy', String(on));
+    card.thumb.querySelector('.busy')?.remove();
+    if (!on) return;
+    const overlay = el('div', 'busy');
+    overlay.append(
+      Object.assign(el('span', 'spinner'), { ariaHidden: 'true' }),
+      el('span', 'visually-hidden', 'Resizing…')
+    );
+    card.thumb.append(overlay);
   };
   const progress = (card: Card, text: string) => {
     const tools = card.toolCalls > 0 ? ` · ${card.toolCalls} tool calls` : '';
@@ -110,7 +123,7 @@ export function resultsView(
       if (card === undefined) return;
       if (stage === 'opening') {
         card.startedAt = now;
-        card.thumb.replaceChildren(el('span', 'spinner'));
+        busy(card, true);
       }
       card.el.dataset.state = stage;
       progress(card, STAGE_TEXT[stage]);
@@ -160,6 +173,7 @@ export function resultsView(
       const card = cards[index];
       if (card === undefined || card.landed) return;
       card.landed = true;
+      busy(card, false);
       const took =
         card.startedAt !== undefined
           ? ` · ${formatSeconds(now - card.startedAt)}`
@@ -202,6 +216,17 @@ export function resultsView(
         card.body.append(actions);
       }
       if (design.notes !== '') card.body.append(...notes(design.notes, index));
+    },
+
+    /** The run failed as a whole: no canvas still in work keeps its spinner. */
+    stopped(): void {
+      for (const card of cards) {
+        if (card.landed || card.startedAt === undefined) continue;
+        card.landed = true;
+        busy(card, false);
+        card.el.dataset.state = 'failed';
+        progress(card, 'failed');
+      }
     },
 
     /** The run's end: any canvas not landed yet, from the result. */

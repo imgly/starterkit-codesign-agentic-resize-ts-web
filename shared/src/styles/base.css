@@ -41,6 +41,8 @@
     0 0 1.5px rgb(0 0 0 / 0.2), 0 8px 16px -2px rgb(0 0 0 / 0.08),
     0 4px 8px -2px rgb(0 0 0 / 0.06);
   --stage: var(--muted);
+  /* --text-2's chevron, for a select's caret. */
+  --caret: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23161617' stroke-opacity='0.65' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -64,6 +66,7 @@
     --shadow-panel: 0 0 0 1px var(--border);
     --shadow-pop: 0 0 0 1px var(--border), 0 8px 24px rgb(0 0 0 / 0.4);
     --stage: color-mix(in srgb, var(--bg) 60%, var(--surface));
+    --caret: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23f1f3f4' stroke-opacity='0.7' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
   }
 }
 
@@ -218,6 +221,16 @@ textarea {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 6px 10px;
+}
+
+/* Our own caret, inset like the text, in the theme's colour: the native one sits against the border. */
+select {
+  appearance: none;
+  padding-right: 32px;
+  background-image: var(--caret);
+  background-position: right 10px center;
+  background-size: 12px 12px;
+  background-repeat: no-repeat;
 }
 
 :focus-visible,

@@ -50,3 +50,15 @@ export function licenceFor(
 export const hasLicence = (): boolean =>
   billingProxyURL() !== undefined ||
   (import.meta.env.VITE_CESDK_LICENSE ?? '') !== '';
+
+/** Why the editor cannot start in a build without a licence. */
+export const NO_LICENCE =
+  'No CE.SDK license: set VITE_CESDK_LICENSE in .env and restart the page’s dev server.';
+
+/** The editor's licence: as `licenceFor`, or, in a build without one, a refusal that says how to add it. */
+export const editorLicenceFor = (
+  bearer: () => Promise<string | undefined>
+): (() => Promise<string>) =>
+  hasLicence()
+    ? licenceFor(bearer)
+    : () => Promise.reject(new Error(NO_LICENCE));

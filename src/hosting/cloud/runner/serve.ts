@@ -1,4 +1,4 @@
-// Starts Agentic Resize's runner server: `pnpm exec vite-node src/hosting/cloud/runner/serve.ts` from the demo's folder,
+// Starts Agentic Resize's runner server: `pnpm exec vite-node src/hosting/cloud/runner/serve.ts` from the starter kit's folder,
 // with the cloud hosting's containers running and its variables in `.env`; or Compose's `runner` service.
 import { existsSync } from 'node:fs';
 import { createServer } from 'node:http';

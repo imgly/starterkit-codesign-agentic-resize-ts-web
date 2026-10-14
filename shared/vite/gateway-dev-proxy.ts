@@ -56,7 +56,7 @@ async function forward(
       'x-gateway-dev-proxy': 'no-key'
     });
     res.end(
-      'dev proxy: set IMGLY_GATEWAY_API_KEY in the demo .env and restart the dev server.'
+      'dev proxy: set IMGLY_GATEWAY_API_KEY in .env and restart the dev server.'
     );
     return;
   }

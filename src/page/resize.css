@@ -47,9 +47,13 @@
   padding: 0 8px;
   font: inherit;
   color: inherit;
-  background: var(--surface);
+  background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+}
+
+.model select {
+  padding-right: 32px;
 }
 
 .model {
@@ -236,6 +240,7 @@
 }
 
 .result .thumb {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -246,6 +251,20 @@
   width: auto;
   height: auto;
   min-height: 0;
+}
+
+.result .busy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.result .busy .spinner {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
 }
 
 .result .meta .off {

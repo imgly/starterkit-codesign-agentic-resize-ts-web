@@ -3,7 +3,11 @@
 
 import { CESDK_VERSION, googleFonts } from '@imgly/codesign-sdk';
 import { openEditorModal } from '../../shared/src/editor-modal/index.js';
-import { hasLicence, licenceFor } from '../../shared/src/licence.js';
+import {
+  editorLicenceFor,
+  hasLicence,
+  NO_LICENCE
+} from '../../shared/src/licence.js';
 import {
   startSession,
   type GatewaySession,
@@ -13,7 +17,7 @@ import {
   DEFAULT_MODEL_ID,
   MODEL_CHOICES
 } from '../../shared/src/runner/model.js';
-import { connectRunner } from '../hosting.js';
+import { connectRunner, licenceStartsExecutors } from '../hosting.js';
 import type {
   HostSettings,
   ResizeResult,
@@ -53,8 +57,9 @@ async function main(): Promise<void> {
 function start(session: GatewaySession, page: SessionPage): void {
   const { gatewayBaseURL, meteringBaseURL, getToken } = session;
   if (!hasLicence()) {
-    notice('No CE.SDK license: set VITE_CESDK_LICENSE in .env.', 'error');
-    return;
+    // Only the editor needs it where the executors run on servers: the rest of the page works without one.
+    if (licenceStartsExecutors) return notice(NO_LICENCE, 'error');
+    notice(`The editor is off. ${NO_LICENCE}`);
   }
   let runner: RunnerEndpoint;
   try {
@@ -63,7 +68,7 @@ function start(session: GatewaySession, page: SessionPage): void {
     notice(error instanceof Error ? error.message : String(error), 'error');
     return;
   }
-  const license = licenceFor(getToken);
+  const license = editorLicenceFor(getToken);
   $('app').hidden = false;
 
   const post = (message: PageToRunner, transfer: Transferable[] = []) =>
@@ -206,6 +211,7 @@ function start(session: GatewaySession, page: SessionPage): void {
         return;
       }
       case 'failed':
+        results.stopped();
         status.textContent = '';
         notice(message.error, 'error');
         stop();
@@ -395,7 +401,7 @@ function setupForm(render: (source: ResizeSource) => Promise<Rendered>) {
     button.title = `${preset.label}, ${preset.format.width} × ${preset.format.height} px`;
     if (preset.tooLarge) {
       button.disabled = true;
-      button.title = `${preset.label}: larger than this demo resizes (${MAX_SIDE_TEXT})`;
+      button.title = `${preset.label}: larger than this app resizes (${MAX_SIDE_TEXT})`;
     }
     const toggle = (on: boolean) => {
       button.setAttribute('aria-pressed', String(on));

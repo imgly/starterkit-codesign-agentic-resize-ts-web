@@ -221,7 +221,9 @@ key, and your sign-in's issuer.
   charged to the CoDesign license key the executors run with: the executor
   counts every file it exports and charges it before it is delivered
   ([billing](https://img.ly/docs/cesdk/codesign/deploy/host-the-executor-cdshst/#billing)).
-  What one export costs is set by your license agreement with IMG.LY.
+- **Your balance** is in your
+  [IMG.LY dashboard](https://img.ly/dashboard/credit-balance). For prices,
+  [contact sales](https://img.ly/forms/contact-sales/).
 
 ## The samples
 
