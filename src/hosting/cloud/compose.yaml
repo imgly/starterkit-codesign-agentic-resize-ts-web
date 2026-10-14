@@ -23,7 +23,7 @@ x-executor:
   cpus: 1
   environment:
     # Your CoDesign licence key: every export of these executors is charged to it.
-    IMGLY_CESDK_LICENSE: ${IMGLY_CESDK_LICENSE:?set IMGLY_CESDK_LICENSE in .env}
+    IMGLY_CESDK_LICENSE: ${IMGLY_CESDK_LICENSE:?set IMGLY_CESDK_LICENSE in .env. Contact sales (https://img.ly/forms/contact-sales/) to get a CoDesign license key.}
     EXECUTOR_TOKEN: ${EXECUTOR_TOKEN:?set EXECUTOR_TOKEN in .env}
 
 services:

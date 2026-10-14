@@ -10,7 +10,7 @@ export function checkGateway(session: GatewaySession, page: SessionPage): void {
       if (probe.status === 'missing') {
         page.notice(
           import.meta.env.DEV
-            ? `No gateway key: set IMGLY_GATEWAY_API_KEY in .env and restart the dev server.`
+            ? `No gateway key: set IMGLY_GATEWAY_API_KEY in .env to your CoDesign license key and restart the dev server. Contact sales (https://img.ly/forms/contact-sales/) to get a CoDesign license key.`
             : 'The gateway route has no key.',
           'error'
         );

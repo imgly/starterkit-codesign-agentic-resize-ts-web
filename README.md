@@ -1,4 +1,16 @@
-# Agentic Resize — a CoDesign starter kit
+<p align="center">
+  <a href="https://img.ly/static/agentic-resize.mp4"><img src=".github/assets/demo.gif" width="1280" alt="Agentic Resize: a coffee ad re-composed by a design agent into a landscape post, a square post and a story"></a>
+</p>
+
+# Agentic Resize — an AI Design Resize Starter Kit
+
+Agentic Resize is a TypeScript starter kit for resizing designs with AI, built
+on IMG.LY's CoDesign SDK: a design agent on your server re-composes one design
+for every canvas size you pick, such as a story, a square post or a web
+banner, instead of stretching or cropping it. It is for teams that want a
+resize feature or a resize API in their own product.
+
+Watch the [demo video](https://img.ly/static/agentic-resize.mp4) (about 20 seconds).
 
 Pick a design and some target sizes (a story, a banner, a header), and a
 design agent re-composes the design for each one: it moves, scales and
@@ -28,8 +40,8 @@ those tools (`src/hosting/cloud/runner/`, a Node server).
   editor uses. A 30-day trial key works for local development
   ([CE.SDK licensing](https://img.ly/docs/cesdk/js/licensing-8aa063/#trial-license-key)).
   It goes in `VITE_CESDK_LICENSE`.
-- A **CoDesign license key**, which pays for model calls and exports. To get
-  one, [contact sales](https://img.ly/forms/contact-sales/). It goes in `.env`
+- A **CoDesign license key**, which pays for model calls and exports.
+  [Contact sales](https://img.ly/forms/contact-sales/) to get a CoDesign license key. It goes in `.env`
   twice, under two names: `IMGLY_GATEWAY_API_KEY`, which the runner sends to
   IMG.LY's AI gateway, and `IMGLY_CESDK_LICENSE`, which the executors start
   with. It is not the CE.SDK key in `VITE_CESDK_LICENSE`.
