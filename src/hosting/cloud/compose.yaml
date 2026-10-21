@@ -10,7 +10,7 @@ name: codesign-resize
 
 x-executor:
   &executor # IMG.LY's published image, the same version as this starter kit's @imgly/codesign-sdk.
-  image: ${EXECUTOR_IMAGE:-imgly/codesign-executor:1.83.0}
+  image: ${EXECUTOR_IMAGE:-imgly/codesign-executor:1.84.0}
   # One conversation per executor: it exits about 3½ min after that conversation's last call and comes back empty.
   # The binding and /tmp are in memory, so the restarted container is a clean one that no conversation holds.
   restart: always

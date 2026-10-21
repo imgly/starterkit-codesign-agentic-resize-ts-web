@@ -2,9 +2,9 @@
 
 export const GATEWAY_ORIGIN = 'https://gateway.img.ly';
 
-/** Where `@cesdk/engine` 1.83.0 loads its WASM and fonts from: the engine's own default for that version. */
+/** Where `@cesdk/engine` 1.84.0 loads its WASM and fonts from: the engine's own default for that version. */
 export const ENGINE_BASE_URL =
-  'https://cdn.img.ly/packages/imgly/cesdk-engine/1.83.0/assets';
+  'https://cdn.img.ly/packages/imgly/cesdk-engine/1.84.0/assets';
 
 /** The bearer the page sends to the key-adding routes, which replace it with the key. Not a secret. */
 export const PROXY_BEARER = 'proxy-replaces-this';

@@ -12,11 +12,11 @@
     "build:runner": "vite build --config src/hosting/cloud/runner/vite.config.ts"
   },
   "dependencies": {
-    "@cesdk/cesdk-js": "1.83.0",
-    "@cesdk/engine": "1.83.0",
+    "@cesdk/cesdk-js": "1.84.0",
+    "@cesdk/engine": "1.84.0",
     "@earendil-works/pi-agent-core": "^0.87.1",
     "@earendil-works/pi-ai": "^0.87.1",
-    "@imgly/codesign-sdk": "1.83.0",
+    "@imgly/codesign-sdk": "1.84.0",
     "jose": "6.2.12"
   },
   "devDependencies": {

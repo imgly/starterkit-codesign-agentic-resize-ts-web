@@ -28,7 +28,7 @@ Terms used below: **CE.SDK** is IMG.LY's design engine and editor. A
 (`@imgly/codesign-sdk`) gives an AI model the tools to read, change, preview
 and export designs. The **executor** is where those tools run a CE.SDK
 engine: IMG.LY's published Docker image,
-`imgly/codesign-executor:1.83.0`, which you run unchanged. The
+`imgly/codesign-executor:1.84.0`, which you run unchanged. The
 **runner** is your server that runs the resize job and its agent loop with
 those tools (`src/hosting/cloud/runner/`, a Node server).
 
