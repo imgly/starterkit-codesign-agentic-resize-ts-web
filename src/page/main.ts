@@ -461,7 +461,7 @@ function setupForm(render: (source: ResizeSource) => Promise<Rendered>) {
     }
     if (custom === undefined) {
       custom = group('custom', 'Custom');
-      $('presets').append(custom.section);
+      $('presets').prepend(custom.section);
     }
     const label = `${width}×${height}`;
     const id = `custom.${label}`;
@@ -486,8 +486,8 @@ function setupForm(render: (source: ResizeSource) => Promise<Rendered>) {
         return section;
       });
       $('presets').replaceChildren(
-        ...sections,
-        ...(custom ? [custom.section] : [])
+        ...(custom ? [custom.section] : []),
+        ...sections
       );
     },
     (error: unknown) => {

@@ -24,62 +24,66 @@
     <main class="resize" id="app" hidden>
       <form class="panel setup" id="form">
         <div class="panel-head"><h2>Resize a design</h2></div>
-        <section>
-          <h3 class="label">Design</h3>
-          <figure class="source" id="source" data-state="loading">
-            <div class="stage" id="source-stage">
-              <span class="spinner" aria-hidden="true"></span>
+        <div class="body">
+          <section>
+            <h3 class="label">Design</h3>
+            <figure class="source" id="source" data-state="loading">
+              <div class="stage" id="source-stage">
+                <span class="spinner" aria-hidden="true"></span>
+              </div>
+              <figcaption class="muted small" id="source-caption">
+                Coffee ad, 4:5
+              </figcaption>
+            </figure>
+            <div class="samples" id="samples">
+              <label class="button upload">
+                Upload…
+                <input
+                  type="file"
+                  id="file"
+                  class="visually-hidden"
+                  accept=".imgly,.png,.jpg,.jpeg,.webp"
+                />
+              </label>
             </div>
-            <figcaption class="muted small" id="source-caption">
-              Coffee ad, 4:5
-            </figcaption>
-          </figure>
-          <div class="samples" id="samples">
-            <label class="button upload">
-              Upload…
+          </section>
+          <section>
+            <h3 class="label">Target canvases</h3>
+            <div class="custom">
               <input
-                type="file"
-                id="file"
-                class="visually-hidden"
-                accept=".imgly,.png,.jpg,.jpeg,.webp"
+                type="number"
+                id="custom-w"
+                min="1"
+                max="8000"
+                value="1200"
+                aria-label="Custom width in pixels"
               />
-            </label>
-          </div>
-        </section>
-        <section>
-          <h3 class="label">Target canvases</h3>
-          <div class="pick" id="presets">
-            <p class="muted small">Loading CE.SDK's presets…</p>
-          </div>
-          <div class="custom">
-            <input
-              type="number"
-              id="custom-w"
-              min="1"
-              max="8000"
-              value="1200"
-              aria-label="Custom width in pixels"
-            />
-            <span class="muted">×</span>
-            <input
-              type="number"
-              id="custom-h"
-              min="1"
-              max="8000"
-              value="900"
-              aria-label="Custom height in pixels"
-            />
-            <span class="muted small">px</span>
-            <button type="button" id="custom-add">Add custom size</button>
-          </div>
-        </section>
-        <label class="model">
-          <span class="muted small">Model</span>
-          <select id="model"></select>
-        </label>
+              <span class="muted">×</span>
+              <input
+                type="number"
+                id="custom-h"
+                min="1"
+                max="8000"
+                value="900"
+                aria-label="Custom height in pixels"
+              />
+              <span class="muted small">px</span>
+              <button type="button" id="custom-add">Add custom size</button>
+            </div>
+            <div class="pick" id="presets">
+              <p class="muted small">Loading CE.SDK's presets…</p>
+            </div>
+          </section>
+        </div>
         <div class="go">
-          <button id="go" type="submit" class="primary">Resize</button>
-          <span class="muted small" id="estimate"></span>
+          <label class="model">
+            <span class="muted small">Model</span>
+            <select id="model"></select>
+          </label>
+          <div class="submit">
+            <button id="go" type="submit" class="primary">Resize</button>
+            <span class="muted small" id="estimate"></span>
+          </div>
         </div>
       </form>
 
