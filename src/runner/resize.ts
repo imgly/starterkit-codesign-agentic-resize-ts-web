@@ -99,9 +99,10 @@ export async function resizeDesign(
     try {
       stage('opening');
       codesign = openDesign(deps.executors, conversation);
-      const { version } = await codesign.load(
+      const { design, version } = await codesign.load(
         await readSource(source, deps.readSample)
       );
+      if (await isVideo(codesign, design)) throw new Error(VIDEO_REFUSAL);
       stage('agent');
       const report = await deps.runAgent({
         tools: codesign.tools,
@@ -111,6 +112,7 @@ export async function resizeDesign(
       });
       costUsd += report.costUsd;
       if (report.error !== undefined) throw new Error(report.error);
+      if (await isVideo(codesign, design)) throw new Error(AGENT_MADE_VIDEO);
       stage('saving');
       const archive = await codesign.export('imgly');
       const archiveUrl = await deps.keep(archive, 'archive');
@@ -145,6 +147,34 @@ export async function resizeDesign(
   return { designs, costUsd };
 }
 
+/** What the person reads for a source that is a video. */
+export const VIDEO_REFUSAL =
+  'Agentic Resize works on still designs; this one is a video.';
+/** What a canvas says when the agent made it a video. */
+export const AGENT_MADE_VIDEO =
+  'The agent made this canvas a video; Agentic Resize delivers still designs.';
+
+/** Whether the design has timing a still would drop: a Video-mode scene, a video fill or an audio block. */
+export async function isVideo(
+  codesign: CoDesign,
+  design: string
+): Promise<boolean> {
+  const { value } = await codesign.edit<unknown, boolean>(IS_VIDEO, {
+    design
+  });
+  return value === true;
+}
+
+// A scene saved without a mode throws on the read; it is not a video.
+const IS_VIDEO = `const b = engine.block;
+try {
+  if (b.getEnum(engine.scene.get(), 'scene/mode') === 'Video') return true;
+} catch {}
+return (
+  b.findByType('audio').length > 0 ||
+  b.findByType('//ly.img.ubq/fill/video').length > 0
+);`;
+
 /** The agent's role, ahead of the SDK's `instructions` in its system prompt. */
 export const SYSTEM_PROMPT = [
   'You are a design agent operating a CE.SDK design engine through the tools you have been given.',
@@ -152,6 +182,7 @@ export const SYSTEM_PROMPT = [
   'The design you are working on is ALREADY LOADED: your tools work on it when you name no `design`.',
   "Start by reading the skills that apply, in one message: skill({ name: 'api' }) and skill({ name: 'judge', path: 'design-rules.md' }) are mandatory before your first edit, and skill({ name: 'resize' }) carries the re-composition rules for this job.",
   'Use preview() to look at what you have done — you are judged on the rendered result, not on the code.',
+  'Deliver a still design: no video, audio or timeline.',
   'Work until the layout is genuinely re-composed for the new canvas, then stop and describe in one or two sentences what you changed, as plain text: no tables, lists or headings, since a small card shows it as written.'
 ].join('\n');
 

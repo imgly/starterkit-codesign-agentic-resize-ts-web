@@ -11,7 +11,13 @@ import type {
   RunnerToPage,
   StartExecutors
 } from '../protocol.js';
-import { resizeDesign, openDesign, readSource } from './resize.js';
+import {
+  isVideo,
+  openDesign,
+  readSource,
+  resizeDesign,
+  VIDEO_REFUSAL
+} from './resize.js';
 
 export interface Hosting {
   startExecutors: StartExecutors;
@@ -85,6 +91,7 @@ export function createRunner(
       const { design, version } = await codesign.load(
         await readSource(source, host.readSample)
       );
+      if (await isVideo(codesign, design)) throw new Error(VIDEO_REFUSAL);
       const first = (
         await codesign.edit<unknown, (PageSize & { page: number }) | undefined>(
           FIRST_PAGE,

@@ -36,6 +36,8 @@ export interface EditorModalOptions extends EditorAssetOptions {
   ): Promise<string | undefined>;
   /** After each save. */
   onSaved?(version: string): void;
+  /** Once the editor shows the design, with its engine; what it throws is ignored. */
+  onReady?(engine: CreativeEditorSDK['engine']): Promise<void>;
 }
 
 export interface EditorModalResult {
@@ -64,6 +66,19 @@ const button = (text: string, className = '') => {
 
 const errorText = (err: unknown) =>
   err instanceof Error ? err.message : String(err);
+
+/** The scene's `scene/mode` is Video; a scene made without a mode throws on the read. */
+const isVideo = (cesdk: Editor) => {
+  const scene = cesdk.engine.scene.get();
+  try {
+    return (
+      scene !== null &&
+      cesdk.engine.block.getEnum(scene, 'scene/mode') === 'Video'
+    );
+  } catch {
+    return false;
+  }
+};
 
 /** Opens the modal; resolves once the person closed it. */
 export function openEditorModal(
@@ -153,6 +168,12 @@ export function openEditorModal(
   // Refuses an editor on another CE.SDK than the executor's, and a design a newer one saved: either save would damage it.
   const load = async (cesdk: Editor, design: EditorDesign) => {
     await loadDesign(cesdk.engine, design);
+    // A video opens at its start, wherever it was saved.
+    if (isVideo(cesdk)) {
+      for (const page of cesdk.engine.scene.getPages()) {
+        cesdk.engine.block.setPlaybackTime(page, 0);
+      }
+    }
     await cesdk.actions.run('zoom.toPage', { page: 'first', autoFit: true });
     version = design.version;
     dirty = false;
@@ -230,11 +251,7 @@ export function openEditorModal(
 
   void (async () => {
     try {
-      const [{ default: CreativeEditorSDK }, { DesignEditorConfig }] =
-        await Promise.all([
-          import('@cesdk/cesdk-js'),
-          import('./design-editor/plugin.js')
-        ]);
+      const { default: CreativeEditorSDK } = await import('@cesdk/cesdk-js');
       const design = await opts.read();
       if (!dialog.open) return;
       const cesdk = await CreativeEditorSDK.create(canvas, {
@@ -251,10 +268,20 @@ export function openEditorModal(
         (window as unknown as { codesignEditor?: Editor }).codesignEditor =
           cesdk;
       }
-      await cesdk.addPlugin(new DesignEditorConfig());
-      cesdk.ui.setTheme('light');
       await addPluginModules(cesdk.engine, opts.plugins);
-      await addEditorAssets(cesdk, opts);
+      await load(cesdk, design);
+      // The kit's editor for what the design is, chosen once: a video opens with the timeline.
+      const video = isVideo(cesdk);
+      if (video) {
+        const { VideoEditorConfig } = await import('./video-editor/plugin.js');
+        await cesdk.addPlugin(new VideoEditorConfig());
+      } else {
+        const { DesignEditorConfig } =
+          await import('./design-editor/plugin.js');
+        await cesdk.addPlugin(new DesignEditorConfig());
+      }
+      cesdk.ui.setTheme('light');
+      await addEditorAssets(cesdk, opts, video);
       cesdk.actions.register('saveScene', saveDesign);
       cesdk.ui.insertOrderComponent({ in: 'ly.img.navigation.bar' }, [
         {
@@ -266,12 +293,13 @@ export function openEditorModal(
         { id: 'ly.img.close.navigationBar', onClick: leave }
       ]);
 
-      await load(cesdk, design);
+      await cesdk.actions.run('zoom.toPage', { page: 'first', autoFit: true });
       cesdk.engine.editor.onHistoryUpdated(() => {
         dirty = true;
         if (dialog.dataset.state === 'saved') state('ready');
       });
       state('ready');
+      void opts.onReady?.(cesdk.engine).catch(() => undefined);
     } catch (err) {
       state('failed', `The editor did not open: ${errorText(err)}`);
     }

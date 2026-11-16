@@ -7,12 +7,14 @@ import {
   type AgentToolResult,
   type ThinkingLevel
 } from '@earendil-works/pi-agent-core';
-import type {
-  AssistantMessage,
-  ImageContent,
-  Message,
-  Model,
-  TextContent
+import {
+  isContextOverflow,
+  isRetryableAssistantError,
+  type AssistantMessage,
+  type ImageContent,
+  type Message,
+  type Model,
+  type TextContent
 } from '@earendil-works/pi-ai';
 import { streamSimple } from '@earendil-works/pi-ai/api/openai-completions';
 import { isCoDesignError, type CoDesignTool } from '@imgly/codesign-sdk';
@@ -23,6 +25,8 @@ import { gatewayModel } from './model.js';
 import { RepeatedErrorGuard } from './repeated-error-guard.js';
 
 export const DEFAULT_MAX_COST_USD = 2;
+/** The waits before each retry of a model call that failed on the way (a dropped connection, a cut stream, a 5xx), as pi's coding agent waits. */
+export const RETRY_DELAYS_MS: readonly number[] = [2000, 4000, 8000];
 
 const SYSTEM_PROMPT = [
   'You are the design assistant in a demo. Your tools edit one design, held by a',
@@ -46,6 +50,8 @@ export interface DesignAgentOptions {
   maxCostUsd?: number;
   /** A saved conversation to continue, as `messages()` returned it. */
   messages?: readonly unknown[];
+  /** Default `RETRY_DELAYS_MS`; one retry per entry. */
+  retryDelaysMs?: readonly number[];
 }
 
 export interface DesignAgent {
@@ -58,6 +64,12 @@ export interface DesignAgent {
 
 export function createDesignAgent(opts: DesignAgentOptions): DesignAgent {
   const maxCostUsd = opts.maxCostUsd ?? DEFAULT_MAX_COST_USD;
+  const retryDelaysMs = opts.retryDelaysMs ?? RETRY_DELAYS_MS;
+  let aborted = false;
+  let wake: (() => void) | undefined;
+  /** What the attempts a retry dropped from the conversation cost: still spent. */
+  let droppedUsd = 0;
+  const spentUsd = () => totalCost(agent.state.messages) + droppedUsd;
   const emit = opts.onEvent;
   let tokenError: string | undefined;
   // An error the SDK hands the product rather than the model (no credits left): the turn ends with it.
@@ -100,10 +112,13 @@ export function createDesignAgent(opts: DesignAgentOptions): DesignAgent {
     startUsd: number;
     capped: boolean;
     toolCalls: number;
+    retries: number;
   };
 
   agent.subscribe((event) => {
     if (event.type === 'message_end' && event.message.role === 'assistant') {
+      // A failed attempt that will be retried shows nothing; the retry's answer replaces it.
+      if (retrying(event.message as AssistantMessage)) return;
       for (const e of assistantEvents(event.message)) {
         if (e.type !== 'error') emit(e);
       }
@@ -125,7 +140,7 @@ export function createDesignAgent(opts: DesignAgentOptions): DesignAgent {
       }
     }
     if (event.type === 'turn_end') {
-      const usd = totalCost(agent.state.messages);
+      const usd = spentUsd();
       emit({ type: 'cost', usd });
       if (!turn.capped && usd - turn.startUsd >= maxCostUsd) {
         turn.capped = true;
@@ -134,6 +149,24 @@ export function createDesignAgent(opts: DesignAgentOptions): DesignAgent {
     }
   });
 
+  /** Whether this failed model call gets another try in this turn. */
+  const retrying = (message: AssistantMessage): boolean =>
+    !aborted &&
+    productError === undefined &&
+    tokenError === undefined &&
+    !turn.capped &&
+    turn.retries < retryDelaysMs.length &&
+    retryableModelError(message);
+
+  const pause = (ms: number) =>
+    new Promise<void>((resolve) => {
+      const timer = setTimeout(resolve, ms);
+      wake = () => {
+        clearTimeout(timer);
+        resolve();
+      };
+    }).finally(() => (wake = undefined));
+
   return {
     async prompt(text, model) {
       if (model !== undefined) {
@@ -141,19 +174,34 @@ export function createDesignAgent(opts: DesignAgentOptions): DesignAgent {
       }
       turn = {
         guard: new RepeatedErrorGuard(),
-        startUsd: totalCost(agent.state.messages),
+        startUsd: spentUsd(),
         capped: false,
-        toolCalls: 0
+        toolCalls: 0,
+        retries: 0
       };
+      aborted = false;
       tokenError = undefined;
       productError = undefined;
       try {
         await agent.prompt(text);
+        for (
+          let last = agent.state.messages.at(-1);
+          last?.role === 'assistant' && retrying(last);
+          last = agent.state.messages.at(-1)
+        ) {
+          await pause(retryDelaysMs[turn.retries] ?? 0);
+          turn.retries += 1;
+          if (aborted) break;
+          // The failed attempt leaves the conversation; the model is asked again from the message before it.
+          droppedUsd += totalCost([last]);
+          agent.state.messages = agent.state.messages.slice(0, -1);
+          await agent.continue();
+        }
       } catch (error) {
         tokenError ??= error instanceof Error ? error.message : String(error);
       }
       const messages = agent.state.messages;
-      const costUsd = totalCost(messages) - turn.startUsd;
+      const costUsd = spentUsd() - turn.startUsd;
       const last = lastAssistant(messages);
       const failed =
         last?.stopReason === 'error' || last?.stopReason === 'aborted';
@@ -175,7 +223,11 @@ export function createDesignAgent(opts: DesignAgentOptions): DesignAgent {
       if (error !== undefined) emit({ type: 'error', message: error });
       return report;
     },
-    abort: () => agent.abort(),
+    abort: () => {
+      aborted = true;
+      wake?.();
+      agent.abort();
+    },
     messages: () => agent.state.messages
   };
 }
@@ -243,4 +295,21 @@ function totalCost(messages: AgentMessage[]): number {
     if (message.role === 'assistant') total += message.usage.cost.total;
   }
   return total;
+}
+
+/**
+ * Whether a failed model call is worth trying again: never a prompt over the context window (pi-ai's own check, which
+ * its retry patterns leave to the caller), and a status code only where it stands alone, not inside a token count or a
+ * request id (`130500 tokens`, `req_429ab`), which pi-ai's patterns match as substrings.
+ */
+export function retryableModelError(message: AssistantMessage): boolean {
+  if (isContextOverflow(message)) return false;
+  const errorMessage = message.errorMessage?.replace(
+    /[\w-]*(?:[A-Za-z_-]\d|\d[A-Za-z_-])[\w-]*|\d{4,}/g,
+    ' '
+  );
+  return isRetryableAssistantError({
+    ...message,
+    ...(errorMessage !== undefined ? { errorMessage } : {})
+  });
 }

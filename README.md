@@ -28,7 +28,7 @@ Terms used below: **CE.SDK** is IMG.LY's design engine and editor. A
 (`@imgly/codesign-sdk`) gives an AI model the tools to read, change, preview
 and export designs. The **executor** is where those tools run a CE.SDK
 engine: IMG.LY's published Docker image,
-`imgly/codesign-executor:1.85.0`, which you run unchanged. The
+`imgly/codesign-executor:1.86.0`, which you run unchanged. The
 **runner** is your server that runs the resize job and its agent loop with
 those tools (`src/hosting/cloud/runner/`, a Node server).
 
@@ -73,7 +73,9 @@ npm run dev                                       # the page, http://localhost:5
 
 With pnpm: `pnpm install`, `pnpm exec vite-node …` and `pnpm dev`. The page
 opens on a coffee ad with two sizes picked; press Resize. Three more samples,
-or an `.imgly` file or an image you upload, replace it. The target sizes are
+or an `.imgly` file or an image you upload, replace it; a video design (a
+scene in Video mode, or one with video or audio in it) is refused when it is
+shown, since Agentic Resize works on still designs. The target sizes are
 CE.SDK's page and crop presets, plus a custom size. Each PNG and the model
 calls are charged to your CoDesign license key.
 
@@ -222,7 +224,7 @@ key, and your sign-in's issuer.
   counts every file it exports and charges it before it is delivered
   ([billing](https://img.ly/docs/cesdk/codesign/deploy/host-the-executor-cdshst/#billing)).
 - **Your balance** is in your
-  [IMG.LY dashboard](https://img.ly/dashboard/credit-balance). For prices,
+  [CoDesign dashboard](https://codesign.co/dashboard/credit-balance), where you sign in with your IMG.LY account. For prices,
   [contact sales](https://img.ly/forms/contact-sales/).
 
 ## The samples

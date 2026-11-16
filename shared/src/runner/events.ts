@@ -74,6 +74,8 @@ type SavedMessage =
         | { type: 'thinking'; thinking: string; redacted?: boolean }
         | { type: 'toolCall'; name: string; arguments: unknown }
       >;
+      stopReason?: StopReason;
+      errorMessage?: string;
     }
   | {
       role: 'toolResult';
@@ -99,7 +101,7 @@ export function historyEvents(messages: readonly unknown[]): AgentEvent[] {
       return [{ type: 'user', text }];
     }
     if (message.role === 'assistant' && 'content' in message) {
-      const { content } = message as Extract<
+      const { content, stopReason, errorMessage } = message as Extract<
         SavedMessage,
         { role: 'assistant' }
       >;
@@ -119,7 +121,9 @@ export function historyEvents(messages: readonly unknown[]): AgentEvent[] {
           role: 'assistant',
           content: content.filter(
             (p) => p.type !== 'toolCall'
-          ) as AssistantMessage['content']
+          ) as AssistantMessage['content'],
+          ...(stopReason !== undefined ? { stopReason } : {}),
+          ...(errorMessage !== undefined ? { errorMessage } : {})
         }),
         ...calls
       ];
